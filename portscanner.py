@@ -1,12 +1,12 @@
 import socket
 
-target = input("Введите IP-адрес или домен: ")
+target = input("Enter IP address or domain: ")
 
 ports_to_scan = [21, 22, 23, 25, 53, 80, 110, 143, 443, 3306, 8080]
 
 try:
     target_ip = socket.gethostbyname(target)
-    print(f"\n[+] Сканирование: {target} ({target_ip})")
+    print(f"\n[+] Scanning: {target} ({target_ip})")
     print("-" * 35)
 
     for port in ports_to_scan:
@@ -14,16 +14,16 @@ try:
         s.settimeout(1.0)
         result = s.connect_ex((target_ip, port))
         if result == 0:
-            print(f"Порт {port:<5} : ОТКРЫТ")
+            print(f"Port {port:<5} : OPEN")
 
         s.close()
 
 except socket.gaierror:
-    print("\n[-] Ошибка: Не удалось получить IP-адрес хоста.")
+    print("\n[-] Error: Could not resolve host IP address.")
 except KeyboardInterrupt:
-    print("\n[!] Сканирование прервано пользователем.")
+    print("\n[!] Scanning interrupted by user.")
 except Exception as e:
-    print(f"\n[-] Произошла ошибка: {e}")
+    print(f"\n[-] An error occurred: {e}")
 
 print("-" * 35)
-print("Сканирование завершено.")
+print("Scanning complete.")
