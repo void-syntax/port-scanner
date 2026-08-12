@@ -17,7 +17,7 @@ A lightweight and easy-to-understand TCP port scanner written in Python using on
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/void-syntax/port-scanner.git](https://github.com/void-syntax/port-scanner.git)
+   git clone https://github.com/void-syntax/port-scanner.git
    cd port-scanner
 Run the script:
 
