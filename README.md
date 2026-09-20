@@ -31,9 +31,10 @@
 
 ```text
 .
-├── scanner.py      # Core TCP port scanning logic & CLI entry point
-├── LICENSE         # Open-source MIT License terms
-└── README.md       # Technical documentation and project guide
+├── .gitignore          # Git ignore rules
+├── LICENSE             # Open-source MIT License terms
+├── README.md           # Technical documentation and project guide
+└── portscanner.py      # Core TCP port scanning logic & CLI entry point
 ```
 
 ---
