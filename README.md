@@ -4,10 +4,10 @@
 
 **A lightweight, zero-dependency Python utility for rapid network reconnaissance and socket testing.**
 
-[![Python](https://img.shields.io/badge/Python-3.6%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.6%2B-3776AB?style=for-the-badge\&logo=python\&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Dependencies](https://img.shields.io/badge/Dependencies-Zero-success?style=for-the-badge)](#key-features)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey?style=for-the-badge)](#prerequisites)
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey?style=for-the-badge)](#requirements)
 [![Code Style](https://img.shields.io/badge/Code%20Style-PEP8-brightgreen?style=for-the-badge)](https://peps.python.org/pep-0008/)
 
 [Features](#key-features) • [Installation](#usage-guide) • [Technical Overview](#technical-overview) • [Roadmap](#roadmap--future-enhancements) • [License](#license)
@@ -29,11 +29,12 @@
 
 ## 📁 Project Structure
 
+```text
 .
-├── .gitignore          # Git ignore configuration
-├── LICENSE             # Open-source MIT License terms
-├── README.md           # Technical documentation and project guide
-└── portscanner.py      # Core TCP port scanning logic & CLI entry point
+├── scanner.py      # Core TCP port scanning logic & CLI entry point
+├── LICENSE         # Open-source MIT License terms
+└── README.md       # Technical documentation and project guide
+```
 
 ---
 
@@ -43,6 +44,7 @@ The utility operates at the **Transport Layer (Layer 4)** of the OSI model. It u
 
 ### TCP Connection Flow
 
+```text
   [ Client ]                              [ Target Host ]
       |                                         |
       | ------------- SYN (Port X) -----------> |
@@ -50,6 +52,7 @@ The utility operates at the **Transport Layer (Layer 4)** of the OSI model. It u
       |                                         |
       | <---------- RST/ACK (Port Closed) ----- |  ===> connection refused
       |                                         |
+```
 
 ### Connection Mechanics: `connect()` vs `connect_ex()`
 
@@ -57,12 +60,16 @@ Instead of using `socket.connect()`—which raises a `socket.error` exception on
 
 `connect_ex()` returns `0` upon successful TCP connection establishment:
 
+```text
 0 = Port OPEN
+```
 
 It returns an explicit error code when a connection cannot be established, such as:
 
+```text
 111   = ECONNREFUSED on Linux
 10061 = WSAECONNREFUSED on Windows
+```
 
 Timeouts and other socket errors can indicate that a port is filtered, unreachable, or otherwise unavailable.
 
@@ -72,20 +79,27 @@ Timeouts and other socket errors can indicate that a port is filtered, unreachab
 
 ### Prerequisites
 
-* Python **3.6+** installed on your system
+* Python 3.6+ installed on your system
 * Network connectivity to the target host
 
 ### Installation & Execution
 
-1. **Clone the repository:**
-   git clone [https://github.com/void-syntax/port-scanner.git](https://github.com/void-syntax/port-scanner.git)
-   cd port-scanner
+Clone the repository:
 
-2. **Run the script:**
-   python3 portscanner.py
+```bash
+git clone https://github.com/void-syntax/port-scanner.git
+cd port-scanner
+```
+
+Run the script:
+
+```bash
+python3 scanner.py
+```
 
 ### Sample Output
 
+```text
 Enter IP address or domain: scanme.nmap.org
 
 [+] Scanning: scanme.nmap.org (45.33.32.156)
@@ -104,6 +118,7 @@ Enter IP address or domain: scanme.nmap.org
 ---------------------------------------------
 Total open ports found: 3
 Scanning complete.
+```
 
 ---
 
@@ -121,9 +136,24 @@ Scanning complete.
 Contributions, issues, and feature requests are welcome!
 
 1. Fork the Project
-2. Create your Feature Branch: `git checkout -b feature/AmazingFeature`
-3. Commit your Changes: `git commit -m "Add some AmazingFeature"`
-4. Push to the Branch: `git push origin feature/AmazingFeature`
+2. Create your Feature Branch:
+
+```bash
+git checkout -b feature/AmazingFeature
+```
+
+3. Commit your Changes:
+
+```bash
+git commit -m "Add some AmazingFeature"
+```
+
+4. Push to the Branch:
+
+```bash
+git push origin feature/AmazingFeature
+```
+
 5. Open a Pull Request
 
 ---
