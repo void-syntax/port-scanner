@@ -1,91 +1,173 @@
-# Simple TCP Port Scanner
+<div align="center">
 
-A lightweight, zero-dependency Python tool designed for rapid scanning of common TCP network ports on target IPv4 addresses or hostnames using standard socket connections.
+# 🔍 Simple TCP Port Scanner
+
+**A lightweight, zero-dependency Python utility for rapid network reconnaissance and socket testing.**
+
+[![Python](https://img.shields.io/badge/Python-3.6%2B-3776AB?style=for-the-badge\&logo=python\&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![Dependencies](https://img.shields.io/badge/Dependencies-Zero-success?style=for-the-badge)](#key-features)
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey?style=for-the-badge)](#requirements)
+[![Code Style](https://img.shields.io/badge/Code%20Style-PEP8-brightgreen?style=for-the-badge)](https://peps.python.org/pep-0008/)
+
+[Features](#key-features) • [Installation](#usage-guide) • [Technical Overview](#technical-overview) • [Roadmap](#roadmap--future-enhancements) • [License](#license)
+
+</div>
 
 ---
 
-## Key Features
+## ⚡ Key Features
 
-* **Zero Third-Party Dependencies:** Implemented entirely with Python's native `socket` module.
-* **Domain & IPv4 Resolution:** Accepts both domain names (e.g., `example.com`) and direct IP addresses, resolving targets dynamically with `socket.gethostbyname`.
-* **Targeted Port Suite:** Scans 11 essential services out of the box (FTP, SSH, Telnet, SMTP, DNS, HTTP, POP3, IMAP, HTTPS, MySQL, and HTTP-Proxy).
-* **Timeout-Controlled Scanning:** Uses a non-blocking `1.0s` connection timeout per port to avoid hanging on non-responsive or firewalled hosts.
-* **CLI Status Formatting:** Displays aligned output with clear `[+] OPEN` and `[-] CLOSED` status indicators alongside protocol labels.
-* **Signal & Exception Handling:** Safely captures keyboard interrupts (`Ctrl+C`), DNS resolution failures (`socket.gaierror`), and unhandled runtime exceptions.
+* 📦 **Zero External Dependencies:** Built entirely using Python standard libraries (`socket`, `sys`). No `pip install` required.
+* 🌐 **Smart Domain & IPv4 Resolution:** Automatically resolves hostnames (e.g., `scanme.nmap.org`) to IPv4 using `socket.gethostbyname`.
+* 🎯 **Targeted Service Audit:** Scans 11 high-priority TCP ports by default (FTP, SSH, Telnet, SMTP, DNS, HTTP, POP3, IMAP, HTTPS, MySQL, HTTP-Proxy).
+* ⏱️ **Non-Blocking Timeouts:** Implements a strict `1.0s` connection timeout per socket to prevent hanging on firewalled (`DROP`) or unresponsive hosts.
+* 🖥️ **Clean CLI Visuals:** Formatted stdout with dynamically aligned columns and intuitive status indicators (`[+] OPEN` / `[-] CLOSED`).
+* 🛡️ **Robust Exception Handling:** Gracefully handles keyboard interrupts (`Ctrl+C`), unresolvable hostnames (`socket.gaierror`), and unexpected network errors without crashing.
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 .
-├── scanner.py      # Main Python port scanner script
-└── README.md       # Project documentation
+├── scanner.py      # Core TCP port scanning logic & CLI entry point
+├── LICENSE         # Open-source MIT License terms
+└── README.md       # Technical documentation and project guide
 ```
 
 ---
 
-## Technical Overview
+## 🔬 Technical Overview
 
-The underlying script uses Python's `socket.SOCK_STREAM` interface to initiate a standard TCP three-way handshake (`SYN` -> `SYN-ACK` -> `ACK`) with target ports via `connect_ex()`. 
+The utility operates at the **Transport Layer (Layer 4)** of the OSI model. It uses standard TCP stream sockets (`socket.SOCK_STREAM`) to attempt a TCP connection against the target host.
 
-Unlike `connect()`, which raises an exception on connection failure, `connect_ex()` returns an explicit error code integer:
-* `0`: Connection succeeded (Port is **OPEN**).
-* `111` / `10061` / `Timeout`: Connection refused or dropped (Port is **CLOSED** or **FILTERED**).
+### TCP Connection Flow
 
----
+```text
+  [ Client ]                              [ Target Host ]
+      |                                         |
+      | ------------- SYN (Port X) -----------> |
+      | <---------- SYN-ACK (Port Open) ------- |  ===> connect_ex() = 0
+      |                                         |
+      | <---------- RST/ACK (Port Closed) ----- |  ===> connection refused
+      |                                         |
+```
 
-## Usage Guide
+### Connection Mechanics: `connect()` vs `connect_ex()`
 
-### Requirements
-* Python **3.6+** (No external package installation required)
+Instead of using `socket.connect()`—which raises a `socket.error` exception on failure—the scanner leverages `socket.connect_ex()`.
 
-### Running the Scanner
+`connect_ex()` returns `0` upon successful TCP connection establishment:
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/void-syntax/tcp-port-scanner.git
-   cd tcp-port-scanner
-   ```
+```text
+0 = Port OPEN
+```
 
-2. **Execute the script:**
-   ```bash
-   python3 scanner.py
-   ```
+It returns an explicit error code when a connection cannot be established, such as:
 
-3. **Sample Terminal Output:**
-   ```text
-   Enter IP address or domain: scanme.nmap.org
+```text
+111   = ECONNREFUSED on Linux
+10061 = WSAECONNREFUSED on Windows
+```
 
-   [+] Scanning: scanme.nmap.org (45.33.32.156)
-   ---------------------------------------------
-   [-] Port 21    (FTP       ) : CLOSED
-   [+] Port 22    (SSH       ) : OPEN
-   [-] Port 23    (Telnet    ) : CLOSED
-   [-] Port 25    (SMTP      ) : CLOSED
-   [-] Port 53    (DNS       ) : CLOSED
-   [+] Port 80    (HTTP      ) : OPEN
-   [-] Port 110   (POP3      ) : CLOSED
-   [-] Port 143   (IMAP      ) : CLOSED
-   [+] Port 443   (HTTPS     ) : OPEN
-   [-] Port 3306  (MySQL     ) : CLOSED
-   [-] Port 8080  (HTTP-Proxy) : CLOSED
-   ---------------------------------------------
-   Total open ports found: 3
-   Scanning complete.
-   ```
+Timeouts and other socket errors can indicate that a port is filtered, unreachable, or otherwise unavailable.
 
 ---
 
-## Roadmap & Future Enhancements
+## 🚀 Usage Guide
 
-* [ ] Add multi-threading support using `concurrent.futures` to speed up sequential socket attempts.
-* [ ] Allow custom port range input via CLI command-line arguments (`argparse`).
-* [ ] Implement banner grabbing to detect service versions running on open ports.
-* [ ] Add JSON output export for integration with other diagnostic pipelines.
+### Prerequisites
+
+* Python 3.6+ installed on your system
+* Network connectivity to the target host
+
+### Installation & Execution
+
+Clone the repository:
+
+```bash
+git clone https://github.com/void-syntax/port-scanner.git
+cd port-scanner
+```
+
+Run the script:
+
+```bash
+python3 scanner.py
+```
+
+### Sample Output
+
+```text
+Enter IP address or domain: scanme.nmap.org
+
+[+] Scanning: scanme.nmap.org (45.33.32.156)
+---------------------------------------------
+[-] Port 21    (FTP       ) : CLOSED
+[+] Port 22    (SSH       ) : OPEN
+[-] Port 23    (Telnet    ) : CLOSED
+[-] Port 25    (SMTP      ) : CLOSED
+[-] Port 53    (DNS       ) : CLOSED
+[+] Port 80    (HTTP      ) : OPEN
+[-] Port 110   (POP3      ) : CLOSED
+[-] Port 143   (IMAP      ) : CLOSED
+[+] Port 443   (HTTPS     ) : OPEN
+[-] Port 3306  (MySQL     ) : CLOSED
+[-] Port 8080  (HTTP-Proxy) : CLOSED
+---------------------------------------------
+Total open ports found: 3
+Scanning complete.
+```
 
 ---
 
-## Legal & Security Disclaimer
+## 📌 Roadmap & Future Enhancements
 
-This project is intended strictly for educational purposes, security testing within authorized environments, and local network management. Executing port scans against hosts without explicit permission may violate local computing regulations, internet service provider terms of service, and applicable network privacy laws. Always ensure you have express authorization before targeting external hosts.
+* [ ] **Multi-threading:** Integrate `concurrent.futures.ThreadPoolExecutor` for asynchronous parallel port processing.
+* [ ] **Custom Port Arguments:** Add CLI flags via `argparse` to allow scanning specific ports or ranges (e.g., `-p 1-1024`).
+* [ ] **Banner Grabbing:** Read initial socket payloads to identify running service versions.
+* [ ] **Structured Export:** Add support for saving scan results directly to JSON or CSV files (`--output scan.json`).
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!
+
+1. Fork the Project
+2. Create your Feature Branch:
+
+```bash
+git checkout -b feature/AmazingFeature
+```
+
+3. Commit your Changes:
+
+```bash
+git commit -m "Add some AmazingFeature"
+```
+
+4. Push to the Branch:
+
+```bash
+git push origin feature/AmazingFeature
+```
+
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## ⚠️ Legal & Security Disclaimer
+
+> **Warning:** This tool is designed exclusively for educational purposes, defensive security auditing, and authorized administrative tasks.
+>
+> Scanning networks or hosts without prior explicit authorization from the target owner may be illegal and may violate applicable cybercrime laws, organizational policies, or ISP terms of service.
+>
+> The author assumes no liability for misuse or damage caused by this software. Only scan systems and networks that you own or have explicit permission to test.
