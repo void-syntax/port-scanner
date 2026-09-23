@@ -95,7 +95,7 @@ cd port-scanner
 Run the script:
 
 ```bash
-python3 scanner.py
+python3 portscanner.py
 ```
 
 ### Sample Output
